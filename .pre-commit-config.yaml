@@ -1,0 +1,45 @@
+exclude: "^myenv/"
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+        args: ["--maxkb=3000"] # Increased to 3MB
+
+  - repo: https://github.com/psf/black
+    rev: 24.3.0
+    hooks:
+      - id: black
+
+  - repo: https://github.com/pycqa/isort
+    rev: 5.13.2
+    hooks:
+      - id: isort
+
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v8.56.0
+    hooks:
+      - id: eslint
+        files: \.(js|ts|jsx|tsx)$
+        types: [file]
+        exclude: >
+          (?x)^(
+            .*templates/.*\.js$
+          )$
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.1.0
+    hooks:
+      - id: prettier
+        types_or: [javascript, jsx, ts, tsx, css, scss, json, yaml]
+        exclude: >
+          (?x)^(
+            .*templates/.*\.js$
+          )$
+
+ci:
+  autofix_commit_msg: "🤖 Automated linting fixes"
+  autoupdate_schedule: weekly

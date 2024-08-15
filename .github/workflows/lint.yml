@@ -1,0 +1,75 @@
+name: Lint
+
+on:
+  pull_request:
+    branches: [main, staging]
+    paths:
+      - "backend/**"
+      - "frontend/**"
+      - ".github/**"
+
+jobs:
+  backend-linter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install dependencies
+        run: |
+          cd backend
+          pip install -r requirements.txt
+      - name: Run Black
+        run: |
+          cd backend
+          black --check .
+      - name: Run isort
+        run: |
+          cd backend
+          isort --check-only .
+      - name: Run Ruff
+        run: |
+          cd backend
+          ruff check .
+
+  frontend-linter:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "18"
+      - name: Install dependencies
+        run: |
+          cd frontend
+          npm ci
+      - name: Run ESLint
+        run: |
+          cd frontend
+          npm run lint
+      - name: Run TypeScript compiler
+        run: |
+          cd frontend
+          npm run type-check
+
+  pre-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Run pre-commit
+        uses: pre-commit/action@v3.0.0
+
+  check-failure:
+    needs: [backend-linter, frontend-linter, pre-commit]
+    runs-on: ubuntu-latest
+    if: failure()
+    steps:
+      - name: Check failure
+        run: echo "Please fix the linting issues locally."
